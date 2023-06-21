@@ -1,148 +1,140 @@
-import {
-  cashRegister,
-  childrenMovie,
-  newMovie,
-  regularMovie,
-  rentalWithDelay,
-  rentalWithoutDelay,
-} from '../utils/builder';
+import { calculAdditionalPrice, calculFidelityPoint, calculTotalPrice, cashRegister, childrenMovie, newMovie, regularMovie, rentalWithDelay, rentalWithoutDelay } from "../utils/builder";
+
 
 describe('case with base cost', function () {
-  it(`Étant donnée un client qui loue un film standard 
+  it(`Étant donnée un client qui loue plusieurs films standards
       et le rends avant le temps maximum de location 
-      alors le prix de la location doit être le prix d'un film standard sans cout additionel`, () => {
+      alors le prix de la location doit être le prix des plusieurs films standard sans cout additionel`, () => {
     // given or arrange
     const regularM = regularMovie();
+    const movies = [regularM, regularM];
     const rentalWithoutD = rentalWithoutDelay();
-    const cash = cashRegister(regularM, rentalWithoutD);
+    const cash = cashRegister(movies, rentalWithoutD);
+    const totalPrice = calculTotalPrice(movies);
 
     // when  or act
     const result = cash.calculPrice();
     // then or assert
 
-    expect(result).toEqual(regularM.price);
+    expect(result).toEqual(totalPrice);
   });
 
-  it(`Étant donnée un client qui loue un nouveau film 
+  it(`Étant donnée un client qui loue plusieurs films nouveau
       et le rends avant le temps maximum de location 
-      alors le prix de la location doit être le prix d'un nouveau film sans cout additionel`, () => {
+      alors le prix de la location doit être le prix de plusieurs films nouveau sans cout additionel`, () => {
     // given or arrange
     const newM = newMovie();
+    const movies = [newM, newM];
     const rentalWithoutD = rentalWithoutDelay();
-    const cash = cashRegister(newM, rentalWithoutD);
+    const totalPrice = calculTotalPrice(movies);
+    const cash = cashRegister(movies, rentalWithoutD);
 
     // when  or act
     const result = cash.calculPrice();
     // then or assert
 
-    expect(result).toEqual(newM.price);
+    expect(result).toEqual(totalPrice);
   });
 
-  it(`Étant donnée un client qui loue un film pour enfant 
+  it(`Étant donnée un client qui loue plusieurs films enfants
       et le rends avant le temps maximum de location 
-      alors le prix de la location doit être le prix d'un film pour enfant sans cout additionel`, () => {
+      alors le prix de la location doit être le prix de plusieurs films enfants pour enfant sans cout additionel`, () => {
     // given or arrange
     const childrenM = childrenMovie();
+    const movies = [childrenM, childrenM];
     const rentalWithoutD = rentalWithoutDelay();
-    const cash = cashRegister(childrenM, rentalWithoutD);
+    const cash = cashRegister(movies, rentalWithoutD);
+    const totalPrice = calculTotalPrice(movies);
 
     // when  or act
     const result = cash.calculPrice();
 
     // then or assert
-    expect(result).toEqual(childrenM.price);
+    expect(result).toEqual(totalPrice);
   });
 });
 
 describe('case with additionnal cost', function () {
-  const delayDay = 2;
+  const delayDay = 5;
 
-  it(`Étant donnée un client qui loue un film standard 
+  it(`Étant donnée un client qui loue plusieurs film de type différents 
       et le rends après le temps maximum de location avec 2 jours de retard
-      alors le prix de la location doit être le prix d'un film standard avec les couts additionel de 2 jours`, () => {
+      alors le prix de la location doit être le prix de plusieurs film standard avec les couts additionel de 2 jours`, () => {
     // given or arrange
     const regularM = regularMovie();
-    const rentalWithD = rentalWithDelay(regularM.maxRentDay + delayDay);
-    const cash = cashRegister(regularM, rentalWithD);
-    const additionalPrice = regularM.additionaCostPerDay * delayDay;
+    const newM = newMovie();
+    const movies = [regularM, newM];
+    const rentalWithD = rentalWithDelay(delayDay);
+    const cash = cashRegister(movies, rentalWithD);
+    const totalPrice = calculTotalPrice(movies);
+    const additionnalPrice = calculAdditionalPrice(movies, delayDay);
 
     // when  or act
     const result = cash.calculPrice();
 
     // then or assert
-    expect(result).toEqual(regularM.price + additionalPrice);
-    expect(result).toEqual(5);
+    expect(result).toEqual(totalPrice + additionnalPrice);
   });
 
-  it(`Étant donnée un client qui loue un nouveau film  
+  it(`Étant donnée un client qui loue plusieurs nouveau film  
   et le rends après le temps maximum de location avec 2 jours de retard
   alors le prix de la location doit être le prix d'un nouveau film  avec les couts additionel de 2 jours`, () => {
     // given or arrange
     const newM = newMovie();
-    const rentalWithD = rentalWithDelay(newM.maxRentDay + delayDay);
-    const cash = cashRegister(newM, rentalWithD);
-    const additionalPrice = newM.additionaCostPerDay * delayDay;
-
+    const movies = [newM, newM, newM]
+    const rentalWithD = rentalWithDelay(delayDay);
+    const cash = cashRegister(movies, rentalWithD);
+    const totalPrice = calculTotalPrice(movies);
+    const additionnalPrice = calculAdditionalPrice(movies, delayDay);
     // when  or act
     const result = cash.calculPrice();
-
     // then or assert
-    expect(result).toEqual(newM.price + additionalPrice);
-    expect(result).toEqual(9);
-  });
-
-  it(`Étant donnée un client qui loue un film pour enfant  
-  et le rends après le temps maximum de location avec 2 jours de retard
-  alors le prix de la location doit être le prix d'un film pour enfant avec les couts additionel de 2 jours`, () => {
-    // given or arrange
-    const childrenM = childrenMovie();
-    const rentalWithD = rentalWithDelay(childrenM.maxRentDay + delayDay);
-    const cash = cashRegister(childrenM, rentalWithD);
-    const additionalPrice = childrenM.additionaCostPerDay * delayDay;
-
-    // when  or act
-    const result = cash.calculPrice();
-
-    // then or assert
-    expect(result).toEqual(childrenM.price + additionalPrice);
-    expect(result).toEqual(4.5);
+    expect(result).toEqual(totalPrice + additionnalPrice);
+    expect(result).toEqual(45);
   });
 });
 
-
-
 describe('point of fidelity calculator', function () {
-  const delayDay = 2;
+  const delayDay = 5;
 
-  
-  it(`Étant donnée un client qui loue un film standard 
+  it(`Étant donnée un client qui loue un film standard
     alors lorsqu'il rend le film les points cumulés sont les points standards`, () => {
 
     // given or arrange
     const regularM = regularMovie();
+    const newM = newMovie();
+    const childrenM = childrenMovie();
+    
+    const movies = [newM, regularM, childrenM]
     const rentalWithD = rentalWithoutDelay();
-    const cash = cashRegister(regularM, rentalWithD);
-
+    const cash = cashRegister(movies, rentalWithD);
+    const totalFidelityPoint = calculFidelityPoint(movies, 0);
     // when  or act
     const result = cash.calculFidelityPoint();
 
     // then or assert
-    expect(result).toEqual(regularM.fidelityPoint);
+    expect(result).toEqual(totalFidelityPoint);
+    expect(result).toEqual(3);
   });
 
-  it(`Étant donnée un client qui loue un nouveau film 
-    alors lorsqu'il rend le nouveau film avec 2 jours de retard alors les points cumulés sont les points de fidélités associées au type de film plus un bonus`, () => {
+  it(`Étant donnée un client qui loue un film standard
+    alors lorsqu'il rend le film les points cumulés sont les points standards`, () => {
 
     // given or arrange
+    const regularM = regularMovie();
     const newM = newMovie();
-    const rentalWithD = rentalWithDelay(newM.additionaCostPerDay + delayDay);
-    const cash = cashRegister(newM, rentalWithD);
-
-    // when  or act
+    const childrenM = childrenMovie();
+    
+    const movies = [newM, regularM, childrenM]
+    const rentalWithD = rentalWithDelay(delayDay);
+    const cash = cashRegister(movies, rentalWithD);
+    const totalFidelityPoint = calculFidelityPoint(movies, delayDay);
+    
     const result = cash.calculFidelityPoint();
 
     // then or assert
-    expect(result).toEqual(newM.fidelityPoint + newM.bonusFidelityRentalLate);
+    expect(result).toEqual(totalFidelityPoint);
+    expect(result).toEqual(4);
   });
 
 

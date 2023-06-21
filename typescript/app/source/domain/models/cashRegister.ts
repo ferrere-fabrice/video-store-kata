@@ -3,7 +3,7 @@ import { AbstractMovie } from './abstractMovie';
 import { NewMovie } from './newMovie';
 
 export class CashRegister {
-  constructor(private movie: AbstractMovie, private rental: Rental) {}
+  constructor(private movies: AbstractMovie[], private rental: Rental) {}
 
   /**
    * récupère le nombre de location
@@ -12,13 +12,18 @@ export class CashRegister {
    */
   calculPrice() : number {
     const rental = this.rental;
-    const movieLoue =  this.movie;
+    const movies=  this.movies;
     let additionalPrice = 0;
+    let totalPriceWithoutAdditionnal = 0;
 
-    if(rental.rentalDays > movieLoue.maxRentDay)
-      additionalPrice = this.calculAdditionnalPrice(rental.rentalDays, movieLoue.maxRentDay, movieLoue.additionaCostPerDay);
+    // je boucle sur chacun de mes films et s'ils sont en retard je calcul les frais additionnels
+    movies.forEach((movie : AbstractMovie) => {
+      if(rental.rentalDays > movie.maxRentDay)
+        additionalPrice += this.calculAdditionnalPrice(rental.rentalDays, movie.maxRentDay, movie.additionaCostPerDay);
+      totalPriceWithoutAdditionnal += movie.price;
+    });
 
-    return movieLoue.price + additionalPrice;
+    return totalPriceWithoutAdditionnal + additionalPrice;
   }
 
   /**
@@ -39,12 +44,18 @@ export class CashRegister {
    */
   calculFidelityPoint() :number{
 
-    const movie = this.movie;
+    const movies = this.movies;
     const rental = this.rental;
+    let totalPointsOfFidelity = 0; 
 
-    if(movie instanceof NewMovie && rental.rentalDays > movie.maxRentDay)
-      return movie.fidelityPoint + movie.bonusFidelityRentalLate;
+    movies.forEach((movie : AbstractMovie)=>{
+      if(movie instanceof NewMovie && rental.rentalDays > movie.maxRentDay)
+        totalPointsOfFidelity +=  movie.fidelityPoint + movie.bonusFidelityRentalLate;
+      else
+        totalPointsOfFidelity +=  movie.fidelityPoint;
+    })
 
-    return movie.fidelityPoint;
+
+    return totalPointsOfFidelity;
   }
 }

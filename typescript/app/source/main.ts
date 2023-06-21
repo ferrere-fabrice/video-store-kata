@@ -5,7 +5,7 @@ import { CashRegister } from "./domain/models/cashRegister";
 import { Rental } from "./domain/models/rental";
 
 
-const newMOvie = new NewMovie("Harry Potter");
+const newMovie = new NewMovie("Harry Potter");
 const regularMovie = new RegularMovie("Mission Impossible");
 const childrenMovie = new ChildrenMovie("Peppa pig");
 
@@ -13,7 +13,7 @@ const rentalNewMovie = new Rental(1);
 const rentalregularMovie = new Rental(1);
 const rentalcChildrenMovize = new Rental(1);
 
-const cashRegister = new CashRegister(newMOvie,rentalNewMovie);
+const cashRegister = new CashRegister([newMovie],rentalNewMovie);
 
 const duPrice = cashRegister.calculPrice();
 const rentalPoint = cashRegister.calculFidelityPoint();
